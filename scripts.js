@@ -1,7 +1,6 @@
 /**
  * ================================================
- *  FELIZ ANIVERSÁRIO LÍVIA ✦  — scripts.js
- *  Versão FINAL v10 — Countdown corrigido definitivo
+ *  FELIZ ANIVERSÁRIO LÍVIA ✦  — scripts.js  v11
  * ================================================
  */
 
@@ -13,6 +12,77 @@ const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+/* ══════════════════════════════════════
+   COUNTDOWN — AUTÔNOMO, RODA ANTES DE TUDO
+   Não depende de DOMContentLoaded nem de GSAP.
+   Executa assim que o parser chega neste bloco.
+══════════════════════════════════════ */
+(function countdownAutonomo() {
+  // Alvo fixo e hardcoded: 15 de março de 2027, meia-noite
+  // Sem cálculos de "hoje é aniversário" — apenas conta para esta data
+  var ALVO = new Date(2027, 2, 15, 0, 0, 0, 0).getTime();
+
+  function pad(n) {
+    var s = String(Math.floor(Math.max(0, n)));
+    return s.length < 2 ? '0' + s : s;
+  }
+
+  function atualizar() {
+    var agora = Date.now();
+    var diff  = ALVO - agora;
+
+    var elAnos     = document.getElementById('cd-anos');
+    var elMeses    = document.getElementById('cd-meses');
+    var elSemanas  = document.getElementById('cd-semanas');
+    var elDias     = document.getElementById('cd-dias');
+    var elHoras    = document.getElementById('cd-horas');
+    var elMinutos  = document.getElementById('cd-minutos');
+    var elSegundos = document.getElementById('cd-segundos');
+    var elMsg      = document.getElementById('countdown-msg');
+
+    // Se os elementos ainda não existem no DOM, tenta de novo em 100ms
+    if (!elSegundos) { setTimeout(atualizar, 100); return; }
+
+    if (diff <= 0) {
+      elAnos.textContent = elMeses.textContent = elSemanas.textContent =
+      elDias.textContent = elHoras.textContent = elMinutos.textContent =
+      elSegundos.textContent = '00';
+      if (elMsg) elMsg.textContent = '🎉 Feliz 18° Aniversário, Lívia! 🎉';
+      return;
+    }
+
+    var totalSeg  = Math.floor(diff / 1000);
+    var totalMin  = Math.floor(totalSeg / 60);
+    var totalHrs  = Math.floor(totalMin / 60);
+    var totalDias = Math.floor(totalHrs / 24);
+
+    var anos    = Math.floor(totalDias / 365);
+    var r1      = totalDias % 365;
+    var meses   = Math.floor(r1 / 30);
+    var r2      = r1 % 30;
+    var semanas = Math.floor(r2 / 7);
+    var dias    = r2 % 7;
+    var horas   = totalHrs % 24;
+    var mins    = totalMin % 60;
+    var segs    = totalSeg % 60;
+
+    elAnos.textContent     = pad(anos);
+    elMeses.textContent    = pad(meses);
+    elSemanas.textContent  = pad(semanas);
+    elDias.textContent     = pad(dias);
+    elHoras.textContent    = pad(horas);
+    elMinutos.textContent  = pad(mins);
+    elSegundos.textContent = pad(segs);
+
+    if (elMsg) elMsg.textContent = 'Para o seu próximo aniversário de 18 anos!!!';
+  }
+
+  // Primeira execução imediata
+  atualizar();
+  // Intervalo de 1 segundo — robusto em background e mobile
+  setInterval(atualizar, 1000);
+})();
 
 
 /* ══════════════════════════════════════
@@ -510,120 +580,7 @@ function initFinal() {
 
 
 /* ══════════════════════════════════════
-   11. COUNTDOWN — v10 DEFINITIVO
-   
-   BUGS CORRIGIDOS:
-   1. padStart('2','0') com string → corrigido para padStart(2,'0')
-   2. requestAnimationFrame → substituído por setInterval(1000)
-   3. Lógica de data revisada e testada linha a linha
-   
-   COMO FUNCIONA HOJE (16/03/2026):
-   - eHojeOAniversario() → false (mês 2, dia 15 ≠ dia 16)
-   - calcularAlvo():
-       alvo = new Date(2026, 2, 15, 0,0,0,0) = 15/03/2026 00:00
-       now (16/03/2026) > alvo → alvo = new Date(2027, 2, 15, 0,0,0,0)
-   - diff = 15/03/2027 00:00 - agora → ~364 dias
-   - Exibe: 00 anos : 11 meses : X semanas : X dias : HH:MM:SS
-══════════════════════════════════════ */
-function initCountdown() {
-  const elAnos     = document.getElementById('cd-anos');
-  const elMeses    = document.getElementById('cd-meses');
-  const elSemanas  = document.getElementById('cd-semanas');
-  const elDias     = document.getElementById('cd-dias');
-  const elHoras    = document.getElementById('cd-horas');
-  const elMinutos  = document.getElementById('cd-minutos');
-  const elSegundos = document.getElementById('cd-segundos');
-  const elMsg      = document.getElementById('countdown-msg');
-
-  // Aborta silenciosamente se os elementos não existirem no DOM
-  if (!elSegundos) return;
-
-  // Aniversário: 15 de março — mês índice 2 no JavaScript
-  const MES_NASC = 2;
-  const DIA_NASC = 15;
-  const ANO_NASC = 2009;
-
-  // padStart correto: primeiro arg NÚMERO, segundo arg STRING
-  function fmt(n) {
-    return String(Math.max(0, Math.floor(n))).padStart(2, '0');
-  }
-
-  function calcularAlvo() {
-    const agora = new Date();
-    const anoAtual = agora.getFullYear();
-
-    // Testa aniversário deste ano
-    const anivEsteAno = new Date(anoAtual, MES_NASC, DIA_NASC, 0, 0, 0, 0);
-
-    // Se ainda não chegou este ano, usa este ano; senão próximo ano
-    if (agora < anivEsteAno) {
-      return anivEsteAno;
-    } else {
-      return new Date(anoAtual + 1, MES_NASC, DIA_NASC, 0, 0, 0, 0);
-    }
-  }
-
-  function tick() {
-    const agora = new Date();
-    const alvo  = calcularAlvo();
-    const idade = alvo.getFullYear() - ANO_NASC;
-
-    // Verifica se hoje É o aniversário
-    const hojeEAniversario = (agora.getMonth() === MES_NASC && agora.getDate() === DIA_NASC);
-
-    if (hojeEAniversario) {
-      elAnos.textContent = elMeses.textContent = elSemanas.textContent =
-      elDias.textContent = elHoras.textContent = elMinutos.textContent =
-      elSegundos.textContent = '00';
-      if (elMsg) elMsg.textContent = '🎉 Feliz ' + (agora.getFullYear() - ANO_NASC) + '° Aniversário, Lívia! 🎉';
-      return;
-    }
-
-    const diff = alvo - agora; // milissegundos positivos garantidos
-
-    const totalSeg  = Math.floor(diff / 1000);
-    const totalMin  = Math.floor(totalSeg / 60);
-    const totalHrs  = Math.floor(totalMin / 60);
-    const totalDias = Math.floor(totalHrs / 24);
-
-    const anos    = Math.floor(totalDias / 365);
-    const resto1  = totalDias % 365;
-    const meses   = Math.floor(resto1 / 30);
-    const resto2  = resto1 % 30;
-    const semanas = Math.floor(resto2 / 7);
-    const dias    = resto2 % 7;
-    const horas   = totalHrs % 24;
-    const mins    = totalMin % 60;
-    const segs    = totalSeg % 60;
-
-    elAnos.textContent     = fmt(anos);
-    elMeses.textContent    = fmt(meses);
-    elSemanas.textContent  = fmt(semanas);
-    elDias.textContent     = fmt(dias);
-    elHoras.textContent    = fmt(horas);
-    elMinutos.textContent  = fmt(mins);
-    elSegundos.textContent = fmt(segs);
-
-    if (elMsg) elMsg.textContent = 'Para o seu próximo aniversário de ' + idade + ' anos!!!';
-  }
-
-  // Dispara imediatamente para não aparecer 00 por 1 segundo
-  tick();
-  // Atualiza a cada segundo — setInterval não para em background
-  setInterval(tick, 1000);
-
-  gsap.fromTo($$('.countdown__inner > *'),
-    { opacity: 0, y: 18 },
-    {
-      opacity: 1, y: 0, duration: .8, ease: 'power2.out', stagger: .1,
-      scrollTrigger: { trigger: '.countdown-section', start: 'top 85%', once: true }
-    }
-  );
-}
-
-
-/* ══════════════════════════════════════
-   INICIALIZAÇÃO PRINCIPAL
+   GSAP — inicialização do restante após DOM
 ══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   CELEBRACAO.init();
@@ -635,7 +592,17 @@ document.addEventListener('DOMContentLoaded', () => {
   initSurpresa();
   initQuote();
   initFinal();
-  initCountdown();
+
+  // Animação de entrada da seção countdown (GSAP)
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo($$('.countdown__inner > *'),
+      { opacity: 0, y: 18 },
+      {
+        opacity: 1, y: 0, duration: .8, ease: 'power2.out', stagger: .1,
+        scrollTrigger: { trigger: '.countdown-section', start: 'top 85%', once: true }
+      }
+    );
+  }
 
   window.addEventListener('resize', () => {
     CELEBRACAO.resize();
