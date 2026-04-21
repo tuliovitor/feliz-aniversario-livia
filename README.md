@@ -36,12 +36,8 @@ O site guia o visitante por oito seções em sequência: hero com collage de fot
 
 - **Hero com collage de fotos reais** — fundo com fotos da aniversariante compostas em grid, tipografia mista (Playfair Display + Great Vibes + Cormorant Garamond) e parallax de scroll na imagem de fundo via GSAP
 - **Slider horizontal pinado** — 3 cards de mensagens pessoais com navegação por scroll, seção com `height: 300vh`, container pintado via ScrollTrigger e conteúdo injetado via JS a partir de um array de dados
-- **Galeria memorial com SVG path animado** — linha desenhada via `strokeDashoffset` sincronizada com o scroll, 5 polaroids com rotações fixas por `data-key` e entrada com `back.out(1.4)` no GSAP
+- **Galeria memorial com SVG path** — linha desenhada via `strokeDashoffset` sincronizada com o scroll, 5 polaroids com rotações fixas por `data-key` e entrada com `back.out(1.4)` no GSAP
 - **Carta pessoal com entrada escalonada** — envelope e linhas da carta revelados progressivamente via `scrollTrigger`, cada `<p>` com delay calculado por índice
-- **Sistema de confetes e faíscas sem dependências** — canvas `position: fixed` com dois tipos de partícula (confetes retangulares com rotação e faíscas circulares com glow), 180 confetes lançados em 3,5s e 8 bursts de faíscas em 200 partículas, tudo em canvas puro
-- **Faíscas douradas no hover da foto final** — segundo canvas localizado no portrait, 24 faíscas em ângulos distribuídos com velocidade radial, trail com `globalAlpha` reduzida, e timeout de 1,2s no touch para mobile
-- **Auto-celebração por scroll** — confetes disparam automaticamente quando o polaroid da seção final entra na viewport (`top 65%`), sem necessidade de interação do usuário; `once: true` garante que dispara apenas na primeira vez
-- **Quote palavra por palavra** — texto dividido em `<span>` individuais com stagger de 45ms e entrada por `y: 18` via GSAP
 - **Countdown em tempo real** — calcula anos, meses, semanas, dias, horas, minutos e segundos até o próximo aniversário usando `requestAnimationFrame`, com detecção de "hoje é o aniversário" que zera tudo e exibe mensagem especial
 - **Preloader com efeito de piscada** — dois blinks animados via timeline GSAP com `scaleY` antes do slide de saída em `yPercent: -100`, e `overflow: hidden` no `<body>` durante o carregamento
 
